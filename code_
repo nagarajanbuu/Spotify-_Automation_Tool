@@ -1,0 +1,78 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.Scanner;
+
+public class test {
+    public static void main(String[] args) throws InterruptedException {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter a song: ");
+        String song_search = sc.nextLine();
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        executor.submit(() -> {
+            System.setProperty("webdriver.chrome.driver", "C:\\Users\\prana\\OneDrive\\Desktop\\AEC_2\\demo2\\src\\drivers\\chromedriver.exe");
+            WebDriver driver = new ChromeDriver();
+            performActions(driver, song_search);
+            driver.quit();
+        });
+        executor.submit(() -> {
+            System.setProperty("webdriver.edge.driver", "C:\\Users\\prana\\OneDrive\\Desktop\\AEC_2\\demo2\\src\\drivers\\msedgedriver.exe");
+            WebDriver driver = new EdgeDriver();
+            performActions(driver, song_search);
+            driver.quit();
+        });
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+    }
+
+    public static void performActions(WebDriver driver, String song_search) {
+        try {
+            driver.get("https://accounts.spotify.com/en/login?continue=https%3A%2F%2Fopen.spotify.com%2Fsearch");
+            WebElement username = driver.findElement(By.id("login-username"));
+            username.sendKeys("1nt21cs129.pranay@nmit.ac.in");
+            WebElement searchBox2 = driver.findElement(By.id("login-password"));
+            searchBox2.sendKeys("nitte123nitte123");
+            WebElement loginButton1 = driver.findElement(By.id("login-button"));
+            loginButton1.click();
+    
+            Thread.sleep(15000);
+    
+            WebElement searchBox = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div[3]/header/div[3]/div/div/form/input"));
+            searchBox.sendKeys(song_search);
+    
+            Thread.sleep(8000);
+            driver.findElement(By.xpath("//*[@id=\"searchPage\"]/div/div/section[2]/section/div[2]/div/div/div/div[2]/div[1]/div/div[1]/div[2]/a/div")).click();
+            driver.findElement(By.xpath("//*[@id=\"onetrust-close-btn-container\"]/button")).click();
+            Thread.sleep(8000);
+            driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div[3]/div[1]/div[2]/div[2]/div/div/div[2]/main/section/div[3]/div[4]/div/div/div/div/button")).click();
+            String streams = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div[3]/div[1]/div[2]/div[2]/div/div/div[2]/main/section/div[1]/div[5]/div/span[4]")).getText();
+            System.out.println(song_search + " has " + streams + " streams");
+            driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div[3]/div[1]/div[2]/div[2]/div/div/div[2]/main/section/div[3]/div[4]/div/div/div/div/div/button/span")).click();
+            Thread.sleep(20000);
+            driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div[3]/div[1]/div[2]/div[2]/div/div/div[2]/main/section/div[3]/div[4]/div/div/div/div/div/button/span")).click();
+            Thread.sleep(2000);        
+    
+            ((JavascriptExecutor) driver).executeScript("window.open();");
+            ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
+            driver.switchTo().window(tabs.get(1));
+            song_search = song_search + " lyrics";
+            driver.get("https://www.google.com/");
+            Thread.sleep(3000);
+            WebElement gsearch = driver.findElement(By.xpath("//*[@id=\"APjFqb\"]"));
+            gsearch.sendKeys(song_search);
+            gsearch.submit();
+            WebElement loginButton = driver.findElement(By.cssSelector("button[type='submit']"));
+            loginButton.click();
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
